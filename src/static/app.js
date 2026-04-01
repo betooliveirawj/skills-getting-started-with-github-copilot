@@ -4,14 +4,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
   const defaultActivityOption = '<option value="">-- Select an activity --</option>';
+  let messageHideTimeoutId;
 
   function showMessage(text, type) {
     messageDiv.textContent = text;
     messageDiv.className = type;
     messageDiv.classList.remove("hidden");
 
-    setTimeout(() => {
+    if (messageHideTimeoutId) {
+      clearTimeout(messageHideTimeoutId);
+    }
+
+    messageHideTimeoutId = setTimeout(() => {
       messageDiv.classList.add("hidden");
+      messageHideTimeoutId = undefined;
     }, 5000);
   }
 
