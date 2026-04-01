@@ -71,6 +71,37 @@ def test_signup_rejects_duplicate_participant(client):
     assert activities[activity_name]["participants"].count(email) == 1
 
 
+def test_signup_rejects_when_activity_at_capacity(client):
+    # Arrange
+    activity_name = "Chess Club"
+    max_participants = activities[activity_name]["max_participants"]
+    current_participants = list(activities[activity_name]["participants"])
+    remaining_slots = max_participants - len(current_participants)
+
+    # Fill the activity to its maximum capacity
+    for i in range(remaining_slots):
+        email = f"student{i}@mergington.edu"
+        response = client.post(
+            f"/activities/{activity_name}/signup",
+            params={"email": email},
+        )
+        assert response.status_code == 200
+
+    assert len(activities[activity_name]["participants"]) == max_participants
+
+    extra_email = "extra.student@mergington.edu"
+
+    # Act
+    response = client.post(
+        f"/activities/{activity_name}/signup",
+        params={"email": extra_email},
+    )
+
+    # Assert
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Activity is at full capacity"}
+    assert len(activities[activity_name]["participants"]) == max_participants
+    assert extra_email not in activities[activity_name]["participants"]
 def test_unregister_removes_participant_from_activity(client):
     # Arrange
     activity_name = "Chess Club"
