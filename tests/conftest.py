@@ -11,7 +11,8 @@ ORIGINAL_ACTIVITIES = deepcopy(activities)
 
 @pytest.fixture
 def client():
-    return TestClient(app)
+    with TestClient(app) as client:
+        yield client
 
 
 @pytest.fixture(autouse=True)
